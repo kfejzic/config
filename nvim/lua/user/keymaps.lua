@@ -115,8 +115,6 @@ M.telescope_keymaps = function(telescope, t_builtin)
 	vim.keymap.set("n", "<leader>ss", function()
 		t_builtin.current_buffer_fuzzy_find({ find_command = "rg" })
 	end, { desc = "Fuzzy search in buffer" })
-
-	vim.keymap.set("n", "<leader>?", t_builtin.oldfiles, { desc = "Telescope - Old Files" })
 end
 
 M.neo_tree_trigger_keys = "<leader>f"
@@ -160,6 +158,10 @@ M.dap = function(dap, dapui, widgets)
 	vim.keymap.set("n", "<leader>ds", toggle_dap_sidebar("scopes"), { desc = "Scopes" })
 	vim.keymap.set("n", "<leader>df", toggle_dap_sidebar("frames"), { desc = "Frames" })
 	vim.keymap.set("n", "<leader>du", dapui.toggle, { desc = "Toggle DAP UI" })
+
+	vim.keymap.set("n", "<space>?", function()
+		require("dapui").eval(nil, { enter = true })
+	end, { desc = "Evaluate value under the cursor in floating window." })
 end
 
 M.gitsigns = function(gs)

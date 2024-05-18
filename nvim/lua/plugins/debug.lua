@@ -2,8 +2,11 @@ return {
 	{
 		"mfussenegger/nvim-dap",
 		dependencies = {
-			{ "mxsdev/nvim-dap-vscode-js", lazy = true },
+			{ "mxsdev/nvim-dap-vscode-js",      lazy = true },
 			{ "folke/which-key.nvim" },
+			{ "theHamsta/nvim-dap-virtual-text" },
+			{ "nvim-neotest/nvim-nio" },
+			{ "rcarriga/nvim-dap-ui" },
 			{
 				"microsoft/vscode-js-debug",
 				lazy = true,
@@ -18,6 +21,9 @@ return {
 			local dap = require("dap")
 			local dapui = require("dapui")
 			local widgets = require("dap.ui.widgets")
+
+			dapui.setup()
+			require("nvim-dap-virtual-text").setup()
 
 			dap.adapters.codelldb = {
 				type = "server",
@@ -57,13 +63,13 @@ return {
 
 			-- javascript / typescript setup
 			require("dap-vscode-js").setup({
-				node_path = "node", -- Path of node executable. Defaults to $NODE_PATH, and then "node"
+				node_path = "node",                                                              -- Path of node executable. Defaults to $NODE_PATH, and then "node"
 				debugger_path = vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter",
-				debugger_cmd = { "js-debug-adapter" }, -- Command to use to launch the debug server. Takes precedence over `node_path` and `debugger_path`.
+				debugger_cmd = { "js-debug-adapter" },                                           -- Command to use to launch the debug server. Takes precedence over `node_path` and `debugger_path`.
 				adapters = { "pwa-node", "pwa-chrome", "pwa-msedge", "node-terminal", "pwa-extensionHost" }, -- which adapters to register in nvim-dap
-				log_file_path = "(stdpath cache)/dap_vscode_js.log", -- Path for file logging
-				log_file_level = vim.log.levels.ERROR, -- Logging level for output to file. Set to false to disable file logging.
-				log_console_level = vim.log.levels.ERROR, -- Logging level for output to console. Set to false to disable console output.
+				log_file_path = "(stdpath cache)/dap_vscode_js.log",                             -- Path for file logging
+				log_file_level = vim.log.levels.ERROR,                                           -- Logging level for output to file. Set to false to disable file logging.
+				log_console_level = vim.log.levels.ERROR,                                        -- Logging level for output to console. Set to false to disable console output.
 			})
 
 			for _, language in ipairs({ "typescript", "javascript" }) do
@@ -120,18 +126,18 @@ return {
 
 			-- setup keymaps
 			require("user.keymaps").dap(dap, dapui, widgets)
-		end,
-	},
-
-	{
-		"rcarriga/nvim-dap-ui",
-		dependencies = { "mfussenegger/nvim-dap" },
-		lazy = true,
-		keys = function()
-			return require("user.keymaps").dap_trigger_keys
-		end,
-		config = function()
-			require("dapui").setup()
+			dap.listeners.before.attach.dapui_config = function()
+				dapui.open()
+			end
+			dap.listeners.before.launch.dapui_config = function()
+				dapui.open()
+			end
+			dap.listeners.before.event_terminated.dapui_config = function()
+				dapui.close()
+			end
+			dap.listeners.before.event_exited.dapui_config = function()
+				dapui.close()
+			end
 		end,
 	},
 
