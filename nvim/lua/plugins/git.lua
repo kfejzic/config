@@ -28,7 +28,7 @@ return {
 	},
 
 	{
-		"/tpope/vim-fugitive",
+		"tpope/vim-fugitive",
 		lazy = false,
 		config = function()
 			---@diagnostic disable-next-line: inject-field
