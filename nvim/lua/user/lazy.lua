@@ -24,13 +24,9 @@ require("lazy").setup({
 	-- show help popup for keymaps (like in emacs)
 	{ "folke/which-key.nvim" },
 
-	{ "nfejzic/mariana.nvim", dev = true },
-
 	-- btor2 syntax highlighting
 	{ "phlo/vim-btor2" },
 }, {
-	dev = { path = "/Users/nadirfejzic/Developer/nvim" },
-
 	change_detection = {
 		-- automatically check for config file changes and reload the ui
 		enabled = true,

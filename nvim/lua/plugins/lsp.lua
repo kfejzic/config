@@ -13,7 +13,10 @@ return {
 			{ "williamboman/mason.nvim", opts = {} },
 			{
 				"williamboman/mason-lspconfig.nvim",
-				opts = {},
+				opts = {
+					-- We do server setup manually below to keep per-server overrides.
+					automatic_enable = false,
+				},
 			},
 
 			-- formatters and formatting
@@ -284,15 +287,39 @@ return {
 			-- },
 		},
 
-		config = function()
-			local user_lsp = require("user.lsp")
-			local telescope_builtin = require("telescope.builtin")
-			local lspconfig = require("lspconfig")
-			local mason_lsp = require("mason-lspconfig")
-			local cmp_nvim_lsp = require("cmp_nvim_lsp")
+			config = function()
+				local user_lsp = require("user.lsp")
+				local telescope_builtin = require("telescope.builtin")
+				local lspconfig = require("lspconfig")
+				local lspconfig_util = require("lspconfig.util")
+				local mason_lsp = require("mason-lspconfig")
+				local cmp_nvim_lsp = require("cmp_nvim_lsp")
+				local is_nvim_011_plus = vim.fn.has("nvim-0.11") == 1
+				local has_native_lsp_config = is_nvim_011_plus and vim.lsp.config ~= nil
+					and type(vim.lsp.enable) == "function"
 
-			local on_attach = user_lsp.get_on_attach(telescope_builtin)
-			local global_capabilities = user_lsp.get_global_capabilities(cmp_nvim_lsp)
+				local setup_server = function(server_name, server_opts)
+					if has_native_lsp_config then
+						vim.lsp.config(server_name, server_opts)
+						vim.lsp.enable(server_name)
+						return
+					end
+
+					lspconfig[server_name].setup(server_opts)
+				end
+
+				local lsp_setup_adapter = setmetatable({}, {
+					__index = function(_, server_name)
+						return {
+							setup = function(server_opts)
+								setup_server(server_name, server_opts)
+							end,
+						}
+					end,
+				})
+
+				local on_attach = user_lsp.get_on_attach(telescope_builtin)
+				local global_capabilities = user_lsp.get_global_capabilities(cmp_nvim_lsp)
 
 			local handlers = user_lsp.get_handlers()
 
@@ -302,9 +329,9 @@ return {
 				handlers = handlers,
 			}
 
-			lspconfig.util.default_config = vim.tbl_extend("force", lspconfig.util.default_config, {
-				capabilities = global_capabilities,
-			})
+				lspconfig_util.default_config = vim.tbl_extend("force", lspconfig_util.default_config, {
+					capabilities = global_capabilities,
+				})
 
 			-- NOTE: rustaceanvim recommends that we don't use mason, but rather
 			-- install the rust-analyzer through rustup. In case rust-analyzer
@@ -315,24 +342,43 @@ return {
 				setup_rust_analyzer()
 			end
 
-			mason_lsp.setup_handlers({
-				-- The first entry (without a key) will be the default handler
-				-- and will be called for each installed server that doesn't have
-				-- a dedicated handler.
-				function(server_name) -- default handler (optional)
-					lspconfig[server_name].setup(opts)
-				end,
-				-- Next, targeted overrides for specific servers.
-				["clangd"] = user_lsp.clangd(opts, lspconfig),
-				["rust_analyzer"] = user_lsp.rust_analyzer(opts),
-				["zls"] = user_lsp.zig_lsp(opts, lspconfig),
-				["gopls"] = user_lsp.go_lsp(opts, lspconfig),
-				["tsserver"] = user_lsp.tsserver(opts, lspconfig),
-				["jsonls"] = user_lsp.jsonls(opts, lspconfig),
-				["eslint"] = user_lsp.eslint(opts, lspconfig),
-				["lua_ls"] = user_lsp.lua_ls(opts, lspconfig),
-				["vuels"] = user_lsp.vue_ls(opts, lspconfig),
-			})
+				local setup_overrides = {
+					clangd = user_lsp.clangd(opts, lsp_setup_adapter),
+					rust_analyzer = user_lsp.rust_analyzer(opts),
+					zls = user_lsp.zig_lsp(opts, lsp_setup_adapter),
+					gopls = user_lsp.go_lsp(opts, lsp_setup_adapter),
+					-- tsserver was renamed to ts_ls in newer nvim-lspconfig versions.
+					tsserver = user_lsp.tsserver(opts, lsp_setup_adapter),
+					ts_ls = user_lsp.tsserver(opts, lsp_setup_adapter),
+					jsonls = user_lsp.jsonls(opts, lsp_setup_adapter),
+					eslint = user_lsp.eslint(opts, lsp_setup_adapter),
+					lua_ls = user_lsp.lua_ls(opts, lsp_setup_adapter),
+					vuels = user_lsp.vue_ls(opts, lsp_setup_adapter),
+					volar = user_lsp.vue_ls(opts, lsp_setup_adapter),
+				}
+
+				local default_setup = function(server_name)
+					setup_server(server_name, opts)
+				end
+
+				-- mason-lspconfig v1 exposes setup_handlers; v2 removed it.
+				if type(mason_lsp.setup_handlers) == "function" then
+					local legacy_handlers = vim.tbl_extend("force", {
+						function(server_name)
+							default_setup(server_name)
+						end,
+					}, setup_overrides)
+					mason_lsp.setup_handlers(legacy_handlers)
+				else
+					for _, server_name in ipairs(mason_lsp.get_installed_servers()) do
+						local setup = setup_overrides[server_name]
+						if setup ~= nil then
+							setup()
+						else
+							default_setup(server_name)
+						end
+					end
+				end
 
 			user_lsp.setup_ui()
 		end,

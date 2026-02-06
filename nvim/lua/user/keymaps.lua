@@ -95,7 +95,6 @@ M.telescope_keymaps = function(telescope, t_builtin)
 	vim.keymap.set("n", "<leader>b", t_builtin.buffers, { desc = "Telescope search buffers" })
 
 	-- Search menu for which-key
-	vim.keymap.set("n", "<leader>s", "", { desc = "Search" })
 	vim.keymap.set("n", "<leader>sd", t_builtin.grep_string, { desc = "Grep string" })
 	vim.keymap.set("n", "<leader>sl", t_builtin.live_grep, { desc = "Live grep string" })
 	vim.keymap.set("n", "<leader>sL", function()
@@ -183,33 +182,15 @@ M.gitsigns = function(gs)
 end
 
 local function setup_wk_prefixes(wk)
-	wk.register({
-		["<leader>"] = {
-			B = {
-				name = "Buffer",
-			},
-			d = {
-				name = "Debug / DAP",
-			},
-			f = {
-				name = "Find/File",
-			},
-			g = {
-				name = "Git",
-			},
-			k = {
-				name = "Collapse / Fold",
-			},
-			l = {
-				name = "LSP",
-			},
-			w = {
-				name = "Lsp Workspace",
-			},
-			s = {
-				name = "Search",
-			},
-		},
+	wk.add({
+		{ "<leader>B", group = "Buffer" },
+		{ "<leader>d", group = "Debug / DAP" },
+		{ "<leader>f", group = "Find/File" },
+		{ "<leader>g", group = "Git" },
+		{ "<leader>k", group = "Collapse / Fold" },
+		{ "<leader>l", group = "LSP" },
+		{ "<leader>w", group = "Lsp Workspace" },
+		{ "<leader>s", group = "Search" },
 	})
 end
 
@@ -240,7 +221,7 @@ M.general = function()
 
 	-- Collapse / Fold
 	vim.keymap.set("n", "<leader>kk", "<cmd>foldclose<CR>", { desc = "Fold" })
-	vim.keymap.set("n", "<leader>kk", "<cmd>foldclose!<CR>", { desc = "Fold all" })
+	vim.keymap.set("n", "<leader>kK", "<cmd>foldclose!<CR>", { desc = "Fold all" })
 	vim.keymap.set("n", "<leader>ko", "<cmd>foldopen<CR>", { desc = "Unfold (open fold)" })
 	vim.keymap.set("n", "<leader>kO", "zR", { desc = "Unfold all (open fold)" })
 
