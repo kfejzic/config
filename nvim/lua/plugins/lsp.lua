@@ -31,12 +31,12 @@ return {
 							lua = { "stylua" },
 							-- Conform will run multiple formatters sequentially
 							-- python = { "isort", "black" },
-							-- Use a sub-list to run only the first available formatter
-							javascript = { { "prettierd", "prettier" } },
-							typescript = { { "prettierd", "prettier" } },
-							vue = { { "prettierd", "prettier" } },
-							html = { { "prettierd", "prettier" } },
-							markdown = { { "prettierd", "prettier" } },
+							-- Run only the first available formatter from this list
+							javascript = { "prettierd", "prettier", stop_after_first = true },
+							typescript = { "prettierd", "prettier", stop_after_first = true },
+							vue = { "prettierd", "prettier", stop_after_first = true },
+							html = { "prettierd", "prettier", stop_after_first = true },
+							markdown = { "prettierd", "prettier", stop_after_first = true },
 							-- rust = { "rustfmt" },
 							c = {},
 							go = { "gofumpt" },

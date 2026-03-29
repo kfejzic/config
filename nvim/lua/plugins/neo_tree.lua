@@ -39,7 +39,16 @@ return {
 				popup_border_style = "rounded", -- "double", "none", "rounded", "shadow", "single" or "solid"
 				use_default_mappings = false,
 				use_popups_for_input = true, -- If false, inputs will use vim.ui.input() instead of custom floats.
-				enable_normal_mode_for_inputs = true,
+				event_handlers = {
+					{
+						event = "neo_tree_popup_input_ready",
+						---@param args { bufnr: integer, winid: integer }
+						handler = function(args)
+							vim.cmd("stopinsert")
+							vim.keymap.set("i", "<esc>", vim.cmd.stopinsert, { noremap = true, buffer = args.bufnr })
+						end,
+					},
+				},
 				source_selector = {
 					winbar = true, -- toggle to show selector on winbar
 				},
@@ -143,8 +152,6 @@ return {
 
 			---@diagnostic disable-next-line: inject-field
 			vim.g.loaded_netrwPlugin = 1 -- use neotree instead
-			vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
-
 			require("user.keymaps").neo_tree()
 		end,
 	},

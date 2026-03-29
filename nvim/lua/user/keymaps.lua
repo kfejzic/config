@@ -20,7 +20,7 @@ M.lsp = function(t_builtin, inlay_hint_supported)
 		t_builtin.diagnostics({ bufnr = 0 })
 	end, { desc = "Diagnostic messages in current buffer" })
 
-	vim.keymap.set("n", "<leader>a", vim.lsp.buf.add_workspace_folder, { desc = "Add workspace folder" })
+	vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, { desc = "Add workspace folder" })
 	vim.keymap.set("n", "<leader>r", vim.lsp.buf.remove_workspace_folder, { desc = "Remove workspace folder" })
 	vim.keymap.set("n", "<leader>l", function()
 		-- print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
@@ -183,6 +183,7 @@ end
 
 local function setup_wk_prefixes(wk)
 	wk.add({
+		{ "<leader>a", group = "AI / Avante" },
 		{ "<leader>B", group = "Buffer" },
 		{ "<leader>d", group = "Debug / DAP" },
 		{ "<leader>f", group = "Find/File" },
