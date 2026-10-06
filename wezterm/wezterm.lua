@@ -17,11 +17,11 @@ end
 
 --config.color_scheme = 'Google (dark) (terminal.sexy)'
 config.color_scheme = 'Kanagawa (Gogh)'
--- config.font = wezterm.font('Comic Code')
+config.font = wezterm.font('Comic Code')
 -- config.font = wezterm.font('MonoLisa')
 -- config.font = wezterm.font('Berkeley Mono')
 -- config.font = wezterm.font('Codelia Ligatures')
-config.font = wezterm.font('SF Mono')
+-- config.font = wezterm.font('SF Mono')
 config.harfbuzz_features = {'zero', 'dlig'}
 config.keys = {
   {
