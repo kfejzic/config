@@ -2,6 +2,10 @@ return {
 	-- Syntax (TreeSitter)
 	{
 		"nvim-treesitter/nvim-treesitter",
+		branch = "master",
+		init = function()
+			require("user.treesitter_compat").setup()
+		end,
 		build = ":TSUpdate",
 		dependencies = {
 			{ "nvim-treesitter/nvim-treesitter-textobjects" },
