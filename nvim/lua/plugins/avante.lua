@@ -8,8 +8,8 @@ return {
 		"MunifTanjim/nui.nvim",
 		{ "ColinKennedy/mega.cmdparse", dependencies = { "ColinKennedy/mega.logging" } },
 		"nvim-tree/nvim-web-devicons",
-		"stevearc/dressing.nvim",
-		"nvim-treesitter/nvim-treesitter",
+		-- dressing.nvim and nvim-treesitter are standalone specs in this config;
+		-- current avante no longer requires them.
 	},
 	opts = {
 		provider = "codex",
@@ -20,15 +20,19 @@ return {
 				args = {},
 			},
 			["claude-code"] = {
-				command = "/opt/homebrew/bin/claude-code-acp",
+				command = "/opt/homebrew/bin/claude-agent-acp",
 				args = {},
+			},
+			["kimi"] = {
+				command = "/opt/homebrew/bin/kimi",
+				args = { "acp" },
 			},
 		},
 		behaviour = {
 			acp_follow_agent_locations = true,
 		},
 		-- Avante auto-sets <leader>a* keymaps by default:
-		--   <leader>aa  Ask (codex, default)
+		--   <leader>aa  Ask
 		--   <leader>ae  Edit
 		--   <leader>ar  Refresh
 		--   <leader>af  Focus
@@ -36,7 +40,8 @@ return {
 		--   <leader>az  Zen mode
 		--   <leader>aS  Stop
 		--   <leader>at  Toggle
-		--   <leader>ad  Debug
+		--   <leader>aM  Select ACP model
+		--   <leader>am  Select ACP mode
 	},
 	config = function(_, opts)
 		require("avante").setup(opts)
@@ -50,5 +55,10 @@ return {
 			require("avante.api").switch_provider("claude-code")
 			require("avante.api").ask()
 		end, { desc = "Avante Ask (Claude Code)" })
+
+		vim.keymap.set({ "n", "v" }, "<leader>ak", function()
+			require("avante.api").switch_provider("kimi")
+			require("avante.api").ask()
+		end, { desc = "Avante Ask (Kimi)" })
 	end,
 }
